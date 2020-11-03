@@ -11,6 +11,10 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.webkit.WebViewClient
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.browse
+import org.jetbrains.anko.email
+import org.jetbrains.anko.sendSMS
+import org.jetbrains.anko.share
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +27,9 @@ class MainActivity : AppCompatActivity() {
             webViewClient = WebViewClient()
         }
         // endregion
+
+        // 만든 ConTextMenu를 띄울 View를 WebView로 지정
+        registerForContextMenu(webView)
 
         // region 기본: Google
         webView.loadUrl("https://www.google.com")
@@ -38,6 +45,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         // endregion
+
+        registerForContextMenu(webView)
 
     }
 
@@ -82,9 +91,11 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_send_text -> {
+                sendSMS("031-123-4567")
                 return true
             }
             R.id.action_email -> {
+                webView.url?.let { email("test@example.com", "좋은 사이트", it) }
                 return true
             }
         }
@@ -98,4 +109,18 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.context, menu)
     }
     // endregion
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item?.itemId) {
+            R.id.action_share -> {
+                webView.url?.let { share(it) }
+                return true
+            }
+            R.id.action_browser -> {
+                webView.url?.let { browse(it) }
+                return true
+            }
+        }
+        return super.onContextItemSelected(item)
+    }
 }
